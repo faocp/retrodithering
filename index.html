@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atkinson Dithering</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="window">
+        <div class="titlebar">
+            <div class="titlebar-buttons">
+                <div class="close-button"></div>
+                <div class="minimize-button"></div>
+                <div class="zoom-button"></div>
+            </div>
+            <div class="title">Atkinson Dithering</div>
+        </div>
+        <div class="content">
+            <div class="toolbar">
+                <div class="button-group">
+                    <button id="imageInput" class="mac-button">
+                        <span class="button-icon">📁</span>
+                        Choose Image
+                    </button>
+                    <button id="downloadBtn" class="mac-button" disabled>
+                        <span class="button-icon">💾</span>
+                        Save
+                    </button>
+                </div>
+                <div class="file-info">
+                    <span class="file-name">No file chosen</span>
+                </div>
+            </div>
+            <div class="preview-container">
+                <div class="preview-window">
+                    <div class="preview-title">Original</div>
+                    <div class="preview-content">
+                        <canvas id="originalCanvas"></canvas>
+                    </div>
+                </div>
+                <div class="preview-window">
+                    <div class="preview-title">Dithered</div>
+                    <div class="preview-content">
+                        <canvas id="ditheredCanvas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html> 
