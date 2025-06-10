@@ -1,6 +1,6 @@
-# Atkinson Dithering Web App
+# Atkinson Dithering App
 
-A simple web application that converts images to black and white using the Atkinson dithering algorithm. This creates a distinctive, high-contrast look that's reminiscent of early computer graphics.
+This is a simple web application that converts images to black and white using the Atkinson dithering algorithm. This creates a distinctive, high-contrast look that's reminiscent of early computer graphics. Made to honour the late Bill Atkinson, legendary programmer.
 
 ## Features
 
