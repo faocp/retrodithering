@@ -1,10 +1,38 @@
+// Atkinson dithering: each pixel's error goes 1/8 each to these six neighbours [dx, dy]
+const ATKINSON_NEIGHBOURS = [[1, 0], [2, 0], [-1, 1], [0, 1], [1, 1], [0, 2]];
+
+// Takes RGBA pixels, returns opaque black/white RGBA pixels.
+function applyAtkinsonDithering(data, width, height) {
+    // Clamped bytes keep the classic behaviour: values stay 0-255 while error spreads
+    const gray = new Uint8ClampedArray(width * height);
+    for (let i = 0; i < gray.length; i++) {
+        gray[i] = Math.round(data[i * 4] * 0.299 + data[i * 4 + 1] * 0.587 + data[i * 4 + 2] * 0.114);
+    }
+
+    const out = new Uint8ClampedArray(width * height * 4).fill(255);
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const i = y * width + x;
+            const black = gray[i] < 128;
+            const share = (gray[i] - (black ? 0 : 255)) / 8;
+            for (const [dx, dy] of ATKINSON_NEIGHBOURS) {
+                const nx = x + dx;
+                const ny = y + dy;
+                if (nx >= 0 && nx < width && ny < height) gray[ny * width + nx] += share;
+            }
+            if (black) out[i * 4] = out[i * 4 + 1] = out[i * 4 + 2] = 0;
+        }
+    }
+    return out;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const imageInput = document.getElementById('imageInput');
     const originalCanvas = document.getElementById('originalCanvas');
     const ditheredCanvas = document.getElementById('ditheredCanvas');
     const downloadBtn = document.getElementById('downloadBtn');
     const fileNameDisplay = document.querySelector('.file-name');
-    
+
     const originalCtx = originalCanvas.getContext('2d');
     const ditheredCtx = ditheredCanvas.getContext('2d');
 
@@ -14,126 +42,42 @@ document.addEventListener('DOMContentLoaded', () => {
     fileInput.accept = 'image/*';
     document.body.appendChild(fileInput);
 
-    // Handle file input button click
-    imageInput.addEventListener('click', () => {
-        fileInput.click();
-    });
-
+    imageInput.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', handleImageUpload);
     downloadBtn.addEventListener('click', downloadDitheredImage);
-
-    // Add window control button functionality
-    document.querySelector('.close-button').addEventListener('click', () => {
-        window.close();
-    });
-
-    document.querySelector('.minimize-button').addEventListener('click', () => {
-        // In a real app, this would minimize the window
-        console.log('Minimize clicked');
-    });
-
-    document.querySelector('.zoom-button').addEventListener('click', () => {
-        // In a real app, this would maximize/restore the window
-        console.log('Zoom clicked');
-    });
 
     function handleImageUpload(e) {
         const file = e.target.files[0];
         if (!file) return;
 
         fileNameDisplay.textContent = file.name;
-        
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const img = new Image();
-            img.onload = () => {
-                // Set canvas dimensions
-                const maxWidth = 800;
-                const scale = Math.min(1, maxWidth / img.width);
-                const width = img.width * scale;
-                const height = img.height * scale;
 
-                originalCanvas.width = width;
-                originalCanvas.height = height;
-                ditheredCanvas.width = width;
-                ditheredCanvas.height = height;
-
-                // Draw original image
-                originalCtx.drawImage(img, 0, 0, width, height);
-                
-                // Get image data and apply dithering
-                const imageData = originalCtx.getImageData(0, 0, width, height);
-                const ditheredData = applyAtkinsonDithering(imageData);
-                
-                // Draw dithered image
-                ditheredCtx.putImageData(ditheredData, 0, 0);
-                
-                // Enable download button
-                downloadBtn.disabled = false;
-            };
-            img.src = event.target.result;
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onerror = () => {
+            URL.revokeObjectURL(url);
+            fileNameDisplay.textContent = `Can't open ${file.name}`;
+            downloadBtn.disabled = true;
         };
-        reader.readAsDataURL(file);
-    }
+        img.onload = () => {
+            URL.revokeObjectURL(url);
+            const scale = Math.min(1, 800 / img.width);
+            const width = Math.round(img.width * scale);
+            const height = Math.round(img.height * scale);
 
-    function applyAtkinsonDithering(imageData) {
-        const { width, height, data } = imageData;
-        const newData = new Uint8ClampedArray(data);
-        const threshold = 128; // Threshold for black/white conversion
-        
-        // First pass: Convert to grayscale
-        for (let i = 0; i < data.length; i += 4) {
-            const gray = Math.round(
-                data[i] * 0.299 + 
-                data[i + 1] * 0.587 + 
-                data[i + 2] * 0.114
-            );
-            newData[i] = gray;
-            newData[i + 1] = gray;
-            newData[i + 2] = gray;
-        }
-        
-        // Second pass: Apply Atkinson dithering
-        for (let y = 0; y < height; y++) {
-            for (let x = 0; x < width; x++) {
-                const idx = (y * width + x) * 4;
-                const oldPixel = newData[idx];
-                const newPixel = oldPixel < threshold ? 0 : 255;
-                const error = oldPixel - newPixel;
-                
-                // Atkinson dithering pattern (1/8 of error to each pixel)
-                const pattern = [
-                    [0, 0, 1, 1, 1], // Current row
-                    [0, 1, 1, 1, 0], // Next row
-                    [0, 0, 1, 0, 0]  // Row after next
-                ];
-                
-                // Distribute error
-                for (let dy = 0; dy < 3; dy++) {
-                    for (let dx = 0; dx < 5; dx++) {
-                        if (pattern[dy][dx]) {
-                            const nx = x + dx - 2; // Center the pattern
-                            const ny = y + dy;
-                            if (nx >= 0 && nx < width && ny < height) {
-                                const nidx = (ny * width + nx) * 4;
-                                const factor = pattern[dy][dx] / 8;
-                                const newValue = Math.min(255, Math.max(0, newData[nidx] + error * factor));
-                                newData[nidx] = newValue;
-                                newData[nidx + 1] = newValue;
-                                newData[nidx + 2] = newValue;
-                            }
-                        }
-                    }
-                }
-                
-                // Set the new pixel value
-                newData[idx] = newPixel;
-                newData[idx + 1] = newPixel;
-                newData[idx + 2] = newPixel;
-            }
-        }
-        
-        return new ImageData(newData, width, height);
+            originalCanvas.width = ditheredCanvas.width = width;
+            originalCanvas.height = ditheredCanvas.height = height;
+
+            // White behind the image, so transparent areas dither as white
+            originalCtx.fillStyle = '#fff';
+            originalCtx.fillRect(0, 0, width, height);
+            originalCtx.drawImage(img, 0, 0, width, height);
+
+            const { data } = originalCtx.getImageData(0, 0, width, height);
+            ditheredCtx.putImageData(new ImageData(applyAtkinsonDithering(data, width, height), width, height), 0, 0);
+            downloadBtn.disabled = false;
+        };
+        img.src = url;
     }
 
     function downloadDitheredImage() {
@@ -142,4 +86,4 @@ document.addEventListener('DOMContentLoaded', () => {
         link.href = ditheredCanvas.toDataURL('image/png');
         link.click();
     }
-}); 
+});
