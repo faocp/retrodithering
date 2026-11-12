@@ -118,8 +118,15 @@ body {
     z-index: 2;
 }
 
-.info-content a {
+.info-content a, .footer a {
     color: #000000;
+}
+
+.footer {
+    border-top: 1px solid #999999;
+    padding: 6px 16px;
+    font-size: 12px;
+    text-align: center;
 }
 
 .about {
