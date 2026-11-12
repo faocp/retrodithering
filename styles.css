@@ -1,3 +1,9 @@
+@font-face {
+    font-family: "Geist Pixel";
+    src: url("fonts/GeistPixel-Square.woff2") format("woff2");
+    font-display: swap;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -251,3 +257,8 @@ canvas {
 input[type="file"] {
     display: none;
 } 
+/* Pixel accents: titles, panel headers, buttons, About headings. Last so it wins. */
+.title, .preview-title, .mac-button, .about h2 {
+    font-family: "Geist Pixel", "Chicago", "Charcoal", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: normal; /* the font has no bold; avoid faux bold */
+}
