@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About · Atkinson Dithering</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="window">
+        <div class="titlebar">
+            <div class="titlebar-buttons">
+                <div class="close-button"></div>
+                <div class="minimize-button"></div>
+                <div class="zoom-button"></div>
+            </div>
+            <div class="title">About</div>
+        </div>
+        <div class="content">
+            <div class="toolbar">
+                <a href="index.html" class="mac-button">← Back to the app</a>
+            </div>
+            <div class="info-box about">
+                <div class="info-content">
+                    <h2>What this is</h2>
+                    <p>A tiny web app that turns any picture into a 1-bit black-and-white image, the way the first Macintosh drew pictures in 1984.</p>
+
+                    <h2>How it works</h2>
+                    <p>Each pixel becomes black or white. The difference between its real shade and the chosen one is the "error". Atkinson dithering passes 1/8 of that error to six nearby pixels and simply drops the rest. Dropping part of the error is what gives the look its crisp highlights and deep shadows.</p>
+                    <p>Everything runs in your browser. Your images never leave your device.</p>
+
+                    <h2>Why</h2>
+                    <p>Made to honour the late Bill Atkinson, who wrote QuickDraw, MacPaint and HyperCard, and came up with this dithering method for the original Mac.</p>
+
+                    <h2>Who</h2>
+                    <p>Made by fffelipe. More of my work at <a href="https://fffelipe.com">fffelipe.com</a>.</p>
+                    <p>Source code on <a href="https://github.com/faocp/retrodithering">GitHub</a>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

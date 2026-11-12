@@ -118,6 +118,33 @@ body {
     z-index: 2;
 }
 
+.info-content a {
+    color: #000000;
+}
+
+.about {
+    text-align: left;
+    font-size: 13px;
+}
+
+.about h2 {
+    font-size: 14px;
+    margin: 12px 0 4px;
+}
+
+.about h2:first-child {
+    margin-top: 0;
+}
+
+.about p + p {
+    margin-top: 6px;
+}
+
+a.mac-button {
+    text-decoration: none;
+    width: fit-content;
+}
+
 .toolbar {
     background: #CCCCCC;
     border: 1px solid #999999;
